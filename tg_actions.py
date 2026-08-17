@@ -3,7 +3,7 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-BOT_TOKEN = os.environ.get('TG_BOT_TOKEN', '8825440586:AAESDwIvheKmWYlq5lWTBSH-04ZedF9_gRU')
+BOT_TOKEN = os.environ.get('TG_BOT_TOKEN', '')
 DEFAULT_GROUP_CHAT_ID = os.environ.get('TG_GROUP_CHAT_ID', '')
 
 API_BASE = f'https://api.telegram.org/bot{BOT_TOKEN}'

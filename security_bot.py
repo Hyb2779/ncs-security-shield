@@ -8,8 +8,8 @@ from telegram import Update, ChatPermissions, InlineKeyboardButton, InlineKeyboa
 from telegram.ext import ApplicationBuilder, ChatMemberHandler, CommandHandler, MessageHandler, filters, ContextTypes
 
 BOT_TOKEN = os.environ.get("TG_BOT_TOKEN")
-BOT_USERNAME = "BETFOREXILAN_BOT"
-WEBAPP_URL = "https://www.nunuexpress.com/tg-verify/"
+BOT_USERNAME = "AntoniusGuard_bot"
+WEBAPP_URL = "https://www.nunuexpress.com/tg-verify-antonius/"
 
 async def on_member_status_change(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = update.chat_member
