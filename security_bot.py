@@ -10,6 +10,35 @@ from telegram.ext import ApplicationBuilder, ChatMemberHandler, CommandHandler, 
 BOT_TOKEN = os.environ.get("TG_BOT_TOKEN")
 BOT_USERNAME = "AntoniusGuard_bot"
 WEBAPP_URL = "https://www.nunuexpress.com/tg-verify-antonius/"
+GROUP_CHAT_ID = os.environ.get("TG_GROUP_CHAT_ID")
+LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nitrogen_logo.jpg')
+
+LOVE_ANNOUNCEMENT = (
+    "\U0001F3DB\uFE0F\U0001F451 Roma'nin en guclu komutani, bir kraliceye asik oldu.\n\n"
+    "Antonius, Kleopatra icin imparatorlugunu bile riske atti. "
+    "Onu korumak icin Actium'da butun bir donanmayla savasti, "
+    "zaferde de yenilgide de yaninda durdu. \u2694\uFE0F\n\n"
+    "Ve sonunda... ayrilmamayi sectiler. Ikisi de, birbirinden ayri bir hayat yerine "
+    "sonsuzlugu birlikte secti. \U0001F5A4\n\n"
+    "Iste o sadakatle, bir gorev burada da suruyor.\n\n"
+    "\U0001F6E1\uFE0F NCS KORUMA AKTIF\n"
+    "Antonius Guard, KLeOPATRa DeNiZzZ'i koruyor. Yeni katilanlar dogrulama yapmadan "
+    "mesaj atamaz, uygunsuz icerik aninda filtrelenir.\n\n"
+    "Bu kraliceyi koruma gorevi, aynen Antonius'un yaptigi gibi \u2014 sonuna kadar. \u2764\uFE0F\u200D\U0001F525"
+)
+
+async def send_love_announcement(context):
+    if not GROUP_CHAT_ID:
+        return
+    try:
+        with open(LOGO_PATH, 'rb') as photo:
+            await context.bot.send_photo(chat_id=GROUP_CHAT_ID, photo=photo, caption=LOVE_ANNOUNCEMENT)
+    except Exception as e:
+        print(f"[ASK MESAJI] Gonderilemedi: {e}")
+
+async def on_startup(application):
+    if GROUP_CHAT_ID and application.job_queue:
+        application.job_queue.run_repeating(send_love_announcement, interval=4 * 3600, first=5)
 
 async def on_member_status_change(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = update.chat_member
@@ -119,7 +148,7 @@ async def on_group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"[MODERASYON] {user.id} 1. ihlal, uyarildi. Kelime: {banned_word}")
 
 if __name__ == '__main__':
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app = ApplicationBuilder().token(BOT_TOKEN).post_init(on_startup).build()
     app.add_handler(ChatMemberHandler(on_member_status_change, ChatMemberHandler.CHAT_MEMBER))
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(MessageHandler(filters.TEXT & filters.ChatType.GROUPS, on_group_message))

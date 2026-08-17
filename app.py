@@ -3,11 +3,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from flask import Flask, request, jsonify, render_template_string
+from werkzeug.middleware.proxy_fix import ProxyFix
 import db
 import tg_actions
 from panel import panel_bp
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1, x_proto=1, x_for=1, x_host=1)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'lutfen-bunu-degistir-guclu-bir-key')
 
 db.init_db()
