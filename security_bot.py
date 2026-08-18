@@ -37,8 +37,19 @@ async def send_love_announcement(context):
         print(f"[ASK MESAJI] Gonderilemedi: {e}")
 
 async def on_startup(application):
-    if GROUP_CHAT_ID and application.job_queue:
-        application.job_queue.run_repeating(send_love_announcement, interval=4 * 3600, first=5)
+    if not GROUP_CHAT_ID:
+        return
+    try:
+        caption = (
+            "\U0001F6E1\uFE0F\u2728 *NITRO CORE SYSTEMS* \u2728\U0001F6E1\uFE0F\n"
+            "_Koruma Botu Aktif_\n\n"
+            "Antonius Guard nobette. Dogrulanmamis uyeler mesaj atamaz, "
+            "uygunsuz icerik aninda filtrelenir."
+        )
+        with open(LOGO_PATH, 'rb') as photo:
+            await application.bot.send_photo(chat_id=GROUP_CHAT_ID, photo=photo, caption=caption, parse_mode="Markdown")
+    except Exception as e:
+        print(f"[BASLANGIC MESAJI] Gonderilemedi: {e}")
 
 async def on_member_status_change(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = update.chat_member
@@ -60,7 +71,7 @@ async def on_member_status_change(update: Update, context: ContextTypes.DEFAULT_
 
     # Yeni katilan uye (is_member False->True gecisi ile yakalanir, status string'i
     # guvenilir degil cunku mute'lu kullanici RESTRICTED durumunda kalabilir)
-    if (not old_is_member) and new_is_member and new_status != "creator":
+    if (not old_is_member) and new_is_member and new_status != "creator" and not db.has_pending_welcome(user.id):
         await context.bot.restrict_chat_member(
             chat_id=chat_id, user_id=user.id,
             permissions=ChatPermissions(can_send_messages=False)

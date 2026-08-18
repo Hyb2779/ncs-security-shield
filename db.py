@@ -48,6 +48,18 @@ def get_violations(limit=100):
     with get_conn() as conn:
         return [dict(r) for r in conn.execute('SELECT * FROM violations ORDER BY created_at DESC LIMIT ?', (limit,)).fetchall()]
 
+def has_pending_welcome(telegram_id, within_seconds=60):
+    # Sadece son X saniye icinde olusmus kaydi 'yakin zamanda gonderildi' say -
+    # boylece kullanici cikip tekrar girerse (uzun sure sonra) yeniden dogrulanabilir,
+    # sadece Telegram'in ayni katilim icin gonderdigi ani cift event'ler engellenir.
+    with get_conn() as conn:
+        row = conn.execute(
+            'SELECT created_at FROM welcome_messages WHERE telegram_id = ?', (str(telegram_id),)
+        ).fetchone()
+        if not row:
+            return False
+        return (time.time() - row['created_at']) < within_seconds
+
 def save_welcome_message(telegram_id, chat_id, message_id):
     with get_conn() as conn:
         conn.execute('INSERT OR REPLACE INTO welcome_messages (telegram_id, chat_id, message_id, created_at) VALUES (?, ?, ?, ?)',
